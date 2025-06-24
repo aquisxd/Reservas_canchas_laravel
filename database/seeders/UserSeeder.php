@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
             'email' => 'admin@example.com',
             'password' => Hash::make('password'),
             'role' => 'admin',
-            'phone' => '123456789'
+            'phone' => 'fiorela123'
         ]);
 
         // Test client
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
             'email' => 'cliente@example.com',
             'password' => Hash::make('password'),
             'role' => 'client',
-            'phone' => '987654321'
+            'phone' => 'fiorela123'
         ]);
     }
 }

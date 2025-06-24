@@ -1,282 +1,252 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-map-marker-alt me-2"></i>Gestión de Canchas
-            </h1>
-            <p class="mb-0 text-muted">Administra todas las canchas del sistema</p>
-        </div>
-        @if(Auth::user()->isAdmin())
-            <a href="{{ route('courts.create') }}" class="btn btn-primary btn-lg shadow-sm">
-                <i class="fas fa-plus me-2"></i>Nueva Cancha
-            </a>
-        @endif
-    </div>
-
-    <!-- Filter Cards -->
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-filter me-2"></i>Filtros de Búsqueda
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="GET" action="{{ route('courts.index') }}">
-                        <div class="row align-items-end">
-                            <div class="col-md-3">
-                                <label for="surface_type" class="form-label font-weight-bold">Tipo de Superficie</label>
-                                <select class="form-control" name="surface_type" id="surface_type">
-                                    <option value="">Todas las superficies</option>
-                                    <option value="clay" {{ request('surface_type') == 'clay' ? 'selected' : '' }}>🟤
-                                        Arcilla</option>
-                                    <option value="hard" {{ request('surface_type') == 'hard' ? 'selected' : '' }}>🔵 Dura
-                                    </option>
-                                    <option value="grass" {{ request('surface_type') == 'grass' ? 'selected' : '' }}>🟢
-                                        Césped</option>
-                                    <option value="synthetic" {{ request('surface_type') == 'synthetic' ? 'selected' : '' }}>🟡 Sintética</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="price_range" class="form-label font-weight-bold">Rango de Precio</label>
-                                <select class="form-control" name="price_range" id="price_range">
-                                    <option value="">Todos los precios</option>
-                                    <option value="0-30" {{ request('price_range') == '0-30' ? 'selected' : '' }}>$0 - $30
-                                    </option>
-                                    <option value="30-50" {{ request('price_range') == '30-50' ? 'selected' : '' }}>$30 -
-                                        $50</option>
-                                    <option value="50+" {{ request('price_range') == '50+' ? 'selected' : '' }}>$50+
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="status" class="form-label font-weight-bold">Estado</label>
-                                <select class="form-control" name="status" id="status">
-                                    <option value="">Todos los estados</option>
-                                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>✅ Activas
-                                    </option>
-                                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>❌
-                                        Inactivas</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="btn-group w-100" role="group">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>Filtrar
-                                    </button>
-                                    <a href="{{ route('courts.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-1"></i>Limpiar
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+    <div class="container mx-auto px-4 py-6">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Administración de Canchas</h1>
+                        <p class="text-gray-600 mt-1">Gestiona todas las canchas del sistema</p>
+                    </div>
+                    <a href="{{ route('courts.create') }}"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Nueva Cancha
+                    </a>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Courts Grid -->
-    <div class="row">
-        @forelse($courts as $court)
-            <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
-                <div class="card shadow h-100 border-0">
-                    <!-- Court Image -->
-                    <div class="court-image-container" style="height: 200px; position: relative; overflow: hidden;">
-                        @if($court->image)
-                            <img src="{{ asset('storage/' . $court->image) }}" class="card-img-top" alt="{{ $court->name }}"
-                                style="height: 100%; width: 100%; object-fit: cover;">
-                        @else
-                            <div class="d-flex align-items-center justify-content-center h-100"
-                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                <i class="fas fa-tennis-ball fa-3x text-white opacity-75"></i>
-                            </div>
-                        @endif
-
-                        <!-- Status Badge -->
-                        <div class="position-absolute" style="top: 10px; right: 10px;">
-                            @if($court->is_active)
-                                <span class="badge badge-success badge-lg">
-                                    <i class="fas fa-check-circle me-1"></i>Activa
-                                </span>
-                            @else
-                                <span class="badge badge-danger badge-lg">
-                                    <i class="fas fa-times-circle me-1"></i>Inactiva
-                                </span>
-                            @endif
-                        </div>
-
-                        <!-- Surface Type Badge -->
-                        <div class="position-absolute" style="top: 10px; left: 10px;">
-                            @php
-                                $surfaceIcons = [
-                                    'clay' => '🟤',
-                                    'hard' => '🔵',
-                                    'grass' => '🟢',
-                                    'synthetic' => '🟡'
-                                ];
-                                $surfaceNames = [
-                                    'clay' => 'Arcilla',
-                                    'hard' => 'Dura',
-                                    'grass' => 'Césped',
-                                    'synthetic' => 'Sintética'
-                                ];
-                            @endphp
-                            <span class="badge badge-light badge-lg">
-                                {{ $surfaceIcons[$court->surface_type] ?? '⚪' }}
-                                {{ $surfaceNames[$court->surface_type] ?? ucfirst($court->surface_type) }}
-                            </span>
-                        </div>
+            <!-- Filtros -->
+            <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                <form method="GET" class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-64">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Buscar por nombre, ubicación o propietario..."
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
+                    <div>
+                        <select name="surface_type"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Todas las superficies</option>
+                            <option value="clay" {{ request('surface_type') == 'clay' ? 'selected' : '' }}>Arcilla</option>
+                            <option value="hard" {{ request('surface_type') == 'hard' ? 'selected' : '' }}>Dura</option>
+                            <option value="grass" {{ request('surface_type') == 'grass' ? 'selected' : '' }}>Césped</option>
+                            <option value="synthetic" {{ request('surface_type') == 'synthetic' ? 'selected' : '' }}>Sintética
+                            </option>
+                        </select>
+                    </div>
+                    <div>
+                        <select name="status"
+                            class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Todos los estados</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Activa</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactiva</option>
+                            <option value="maintenance" {{ request('status') == 'maintenance' ? 'selected' : '' }}>
+                                Mantenimiento</option>
+                        </select>
+                    </div>
+                    <button type="submit"
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        Filtrar
+                    </button>
+                    <a href="{{ route('admin.courts.index') }}" class="text-gray-600 hover:text-gray-800">
+                        Limpiar
+                    </a>
+                </form>
+            </div>
 
-                    <!-- Card Body -->
-                    <div class="card-body d-flex flex-column">
-                        <div class="flex-grow-1">
-                            <h5 class="card-title font-weight-bold mb-2">{{ $court->name }}</h5>
-                            <p class="card-text text-muted">
-                                {{ Str::limit($court->description, 100, '...') ?: 'Cancha de tenis profesional con excelentes instalaciones.' }}
-                            </p>
-                        </div>
-
-                        <!-- Price and Info -->
-                        <div class="mt-auto">
-                            <div class="row align-items-center mb-3">
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div class="h4 font-weight-bold text-success mb-0">
-                                            ${{ number_format($court->price_per_hour, 0) }}
+            <!-- Tabla de canchas -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Cancha
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Propietario
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Precio/Hora
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Estado
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Reservas
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @forelse($courts ?? [] as $court)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-12 w-12">
+                                            @if($court->image)
+                                                <img src="{{ $court->image_url }}" alt="{{ $court->name }}"
+                                                    class="h-12 w-12 rounded-lg object-cover">
+                                            @else
+                                                <div class="h-12 w-12 rounded-lg bg-gray-300 flex items-center justify-center">
+                                                    <i class="fas fa-futbol text-gray-600"></i>
+                                                </div>
+                                            @endif
                                         </div>
-                                        <small class="text-muted">por hora</small>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="text-center">
-                                        <div class="h6 font-weight-bold text-info mb-0">
-                                            {{ $court->reservations_count ?? 0 }}
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ $court->name }}</div>
+                                            <div class="text-sm text-gray-500">{{ $court->surface_type_name }}</div>
+                                            @if($court->location)
+                                                <div class="text-sm text-gray-500">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>{{ $court->location }}
+                                                </div>
+                                            @endif
                                         </div>
-                                        <small class="text-muted">reservas</small>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="btn-group w-100" role="group">
-                                <a href="{{ route('courts.show', $court) }}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-
-                                @if($court->is_active)
-                                    <a href="{{ route('reservations.create', ['court_id' => $court->id]) }}"
-                                        class="btn btn-success btn-sm flex-grow-1">
-                                        <i class="fas fa-calendar-plus me-1"></i>Reservar
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ $court->user->name ?? 'Sin propietario' }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ $court->user->email ?? '' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ $court->formatted_price }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {!! $court->status_badge !!}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div>Total: {{ $court->total_reservations }}</div>
+                                    <div class="text-green-600">Ingresos: ${{ number_format($court->monthly_revenue, 0) }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <a href="{{ route('admin.courts.show', $court) }}"
+                                        class="text-blue-600 hover:text-blue-900 transition-colors">
+                                        <i class="fas fa-eye"></i>
                                     </a>
-                                @else
-                                    <button class="btn btn-secondary btn-sm flex-grow-1" disabled>
-                                        <i class="fas fa-ban me-1"></i>No Disponible
-                                    </button>
-                                @endif
 
-                                @if(Auth::user()->isAdmin())
-                                    <a href="{{ route('courts.edit', $court) }}" class="btn btn-outline-warning btn-sm">
+                                    <a href="{{ route('courts.edit', $court) }}"
+                                        class="text-indigo-600 hover:text-indigo-900 transition-colors">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-outline-danger btn-sm"
-                                        onclick="deleteCourt({{ $court->id }})">
+
+                                    <a href="{{ route('courts.reservations', $court) }}"
+                                        class="text-purple-600 hover:text-purple-900 transition-colors">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </a>
+
+                                    <form method="POST" action="{{ route('admin.courts.toggle-status', $court) }}"
+                                        class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="text-yellow-600 hover:text-yellow-900 transition-colors"
+                                            title="Cambiar estado">
+                                            <i class="fas fa-toggle-{{ $court->status === 'active' ? 'on' : 'off' }}"></i>
+                                        </button>
+                                    </form>
+
+                                    <button onclick="confirmDelete({{ $court->id }}, '{{ $court->name }}')"
+                                        class="text-red-600 hover:text-red-900 transition-colors">
                                         <i class="fas fa-trash"></i>
                                     </button>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card Footer with additional info -->
-                    <div class="card-footer bg-transparent border-0">
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <small class="text-muted">
-                                    <i class="fas fa-star text-warning"></i>
-                                    4.8
-                                </small>
-                            </div>
-                            <div class="col-4">
-                                <small class="text-muted">
-                                    <i class="fas fa-users text-info"></i>
-                                    2-4 jugadores
-                                </small>
-                            </div>
-                            <div class="col-4">
-                                <small class="text-muted">
-                                    <i class="fas fa-clock text-primary"></i>
-                                    24/7
-                                </small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                    No se encontraron canchas
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-        @empty
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-body text-center py-5">
-                        <i class="fas fa-search fa-3x text-muted mb-4"></i>
-                        <h4 class="text-muted">No se encontraron canchas</h4>
-                        <p class="text-muted">
-                            @if(request()->hasAny(['surface_type', 'price_range', 'status']))
-                                No hay canchas que coincidan con los filtros seleccionados.
-                                <br><a href="{{ route('courts.index') }}" class="text-primary">Limpiar filtros</a>
-                            @else
-                                Aún no se han registrado canchas en el sistema.
-                            @endif
-                        </p>
-                        @if(Auth::user()->isAdmin() && !request()->hasAny(['surface_type', 'price_range', 'status']))
-                            <a href="{{ route('courts.create') }}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-plus me-2"></i>Crear Primera Cancha
+
+            <!-- Paginación -->
+            @if(isset($courts) && $courts->hasPages())
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        @if($courts->previousPageUrl())
+                            <a href="{{ $courts->previousPageUrl() }}"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Anterior
+                            </a>
+                        @endif
+                        @if($courts->nextPageUrl())
+                            <a href="{{ $courts->nextPageUrl() }}"
+                                class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                                Siguiente
                             </a>
                         @endif
                     </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Mostrando {{ $courts->firstItem() }} a {{ $courts->lastItem() }} de {{ $courts->total() }}
+                                resultados
+                            </p>
+                        </div>
+                        <div>
+                            {{ $courts->links() }}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        @endforelse
+            @endif
+        </div>
     </div>
 
-    <!-- Pagination -->
-    @if($courts->hasPages())
-        <div class="row">
-            <div class="col-12">
-                <div class="d-flex justify-content-center">
-                    {{ $courts->appends(request()->query())->links() }}
+    <!-- Modal de confirmación de eliminación -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
                 </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Confirmar Eliminación</h3>
+                <p class="text-sm text-gray-500 mb-4" id="deleteMessage">
+                    ¿Estás seguro de que quieres eliminar esta cancha?
+                </p>
+                <form id="deleteForm" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="flex justify-center space-x-3">
+                        <button type="button" onclick="closeDeleteModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Eliminar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    @endif
-</div>
+    </div>
 
-<style>
-    .badge-lg {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.75rem;
-    }
+@endsection
 
-    .court-image-container {
-        border-radius: 0.35rem 0.35rem 0 0;
-    }
+@push('scripts')
+    <script>
+        function confirmDelete(courtId, courtName) {
+            document.getElementById('deleteMessage').textContent = `¿Estás seguro de que quieres eliminar la cancha "${courtName}"?`;
+            document.getElementById('deleteForm').action = `/admin/courts/${courtId}`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
 
-    .btn-group .btn:not(:last-child) {
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-    }
-</style>
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
 
-<script>
-    function deleteCourt(courtId) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta cancha? Esta acción no se puede deshacer.')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/courts/${courtId}`;
-
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        # Dashboard y Vistas de Canchas Mejoradas
+        // Cerrar modal al hacer clic fuera de él
+        window.onclick = function (event) {
+            const deleteModal = document.getElementById('deleteModal');
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+        }
+    </script>
+@endpush

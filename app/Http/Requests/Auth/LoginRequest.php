@@ -5,6 +5,7 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -21,8 +22,6 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -34,18 +33,44 @@ class LoginRequest extends FormRequest
 
     /**
      * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // Verificar si el usuario existe
+        $user = \App\Models\User::where('email', $this->email)->first();
+
+        if (!$user) {
+            Log::warning('Usuario no encontrado', ['email' => $this->email]);
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'email' => 'Las credenciales proporcionadas son incorrectas.',
+            ]);
+        }
+
+        // Verificar si el usuario está activo
+        if (!$user->is_active) {
+            Log::warning('Usuario inactivo intentando acceder', ['email' => $this->email]);
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta ha sido desactivada. Contacta al administrador.',
+            ]);
+        }
+
+        // Intentar autenticación
+        $credentials = $this->only('email', 'password');
+
+        Log::info('Intentando autenticación', [
+            'email' => $credentials['email'],
+            'password_length' => strlen($credentials['password'])
+        ]);
+
+        if (!Auth::attempt($credentials, $this->boolean('remember'))) {
+            Log::warning('Credenciales incorrectas', ['email' => $this->email]);
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => 'Las credenciales proporcionadas son incorrectas.',
             ]);
         }
 
@@ -54,12 +79,10 @@ class LoginRequest extends FormRequest
 
     /**
      * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 

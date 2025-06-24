@@ -295,11 +295,21 @@
                             </a>
                         </li>
                     @else
-                        <li class="nav-item ms-3">
-                            <a class="btn btn-gradient" href="{{ route('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
-                            </a>
+                        <li class="nav-item">
+                            <div class="user-info">
+                                <span class="user-name">{{ auth()->user()->name }}</span>
+                                <a class="btn btn-gradient me-2" href="{{ route('dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-logout">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                                    </button>
+                                </form>
+                            </div>
                         </li>
+
                     @endguest
                 </ul>
             </div>
